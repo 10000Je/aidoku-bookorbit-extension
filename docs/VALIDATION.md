@@ -19,7 +19,7 @@ Aidoku에 등록할 주소: [BookOrbit 소스 목록](https://10000je.github.io/
 
 공개 AIX의 SHA-256은 아래 버전 4 패키지와 같은 `6e705d009fa58a58fa26d0532c998bc8ee49b086df0c317362acb30c3a6e88d4`다. 이번 배포 작업은 Rust 코드나 AIX를 변경하지 않았으며, 기존 Rust/Python 테스트와 Wasm 컴파일을 다시 실행하지 않았다.
 
-새 정식 Release의 게시 이벤트가 소스 목록 배포를 자동 실행한다. 초안·사전 Release는 자동 배포하지 않는다. 기존 `v4` Release는 워크플로 추가 이전에 게시되었으므로 `workflow_dispatch`와 `release_tag=v4`를 사용했다. 수동 재실행 및 새 버전 배포 절차는 README에 기록했다.
+새 정식 Release의 게시 이벤트가 소스 목록 배포를 자동 실행한다. 초안·사전 Release는 자동 배포하지 않는다. 기존 `v4` Release는 워크플로 추가 이전에 게시되었으므로 `workflow_dispatch`와 `release_tag=v4`를 사용했다. 수동 재실행 및 새 버전 배포 절차는 [개발·배포 문서](DEVELOPMENT.md)에 기록했다.
 
 ## 버전 4 직접 실행 결과
 
