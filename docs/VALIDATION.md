@@ -2,6 +2,25 @@
 
 실행일: 2026-11-17. 현재 산출물은 **소스 버전 4**이며 CB7을 추가했다. Rust 45개·Python 9개 테스트, 전체 SDK/Wasm release 빌드, 패키징과 CLI 검증을 통과했다. **CB7 실제 파일의 서버 추출·아이폰 열람은 미실행**이다. 라이브러리·시리즈 기능의 실기기 검증도 미실행이며, 이전 버전 2의 기본 사용 검증 8개는 사용자 보고로 확인한 별도 결과다.
 
+## GitHub Pages 배포 검증
+
+실행일: **2026-11-18 KST**. 공개 저장소 `10000Je/aidoku-bookorbit-extension`의 `v4` Release에 첨부한 `package.aix`로 소스 목록을 생성했다. Pages의 게시 방식은 GitHub Actions이며 HTTPS 강제가 활성화되어 있다. 배포 설정은 `372589d` 커밋에 기록했다.
+
+Aidoku에 등록할 주소: [BookOrbit 소스 목록](https://10000je.github.io/aidoku-bookorbit-extension/index.min.json).
+
+| 검사 | 결과 | 범위 |
+|---|---|---|
+| 워크플로 YAML·셸 문법 | PASS | YAML 파싱, 워크플로 셸 단계의 `bash -n`, 배포 스크립트의 `sh -n` |
+| `sh scripts/build_source_list.sh` | PASS | 로컬 AIX의 ZIP·Wasm·JSON 구조, 공식 CLI 검증, 목록 생성과 ID·버전·AIX 일치 검사 |
+| GitHub Actions 첫 수동 배포 | PASS | [실행 44110843403](https://github.com/10000Je/aidoku-bookorbit-extension/actions/runs/44110843403)의 build·deploy 모두 success |
+| 공개 목록·AIX·아이콘 | PASS | 각 URL에서 HTTP 200, 각각 331·198,062·3,399바이트 |
+| 공개 파일 일관성 | PASS | 목록의 ID·version=4·상대 경로 확인, Pages AIX = v4 Release AIX = 로컬 AIX, 아이콘 = 패키지 내부 아이콘 |
+| 아이폰에서 Pages 목록 등록·업데이트 | 미실행 | 공개 HTTP 응답과 파일 검증까지 수행했으며 Aidoku 앱 동작은 별도 확인 필요 |
+
+공개 AIX의 SHA-256은 아래 버전 4 패키지와 같은 `6e705d009fa58a58fa26d0532c998bc8ee49b086df0c317362acb30c3a6e88d4`다. 이번 배포 작업은 Rust 코드나 AIX를 변경하지 않았으며, 기존 Rust/Python 테스트와 Wasm 컴파일을 다시 실행하지 않았다.
+
+새 정식 Release의 게시 이벤트가 소스 목록 배포를 자동 실행한다. 초안·사전 Release는 자동 배포하지 않는다. 기존 `v4` Release는 워크플로 추가 이전에 게시되었으므로 `workflow_dispatch`와 `release_tag=v4`를 사용했다. 수동 재실행 및 새 버전 배포 절차는 README에 기록했다.
+
 ## 버전 4 직접 실행 결과
 
 SDK `ae6485e`와 BookOrbit `v3.8.0 (450c18e)` 계약을 유지했다. 공식 서버의 `CbzService`가 CB7을 `getSevenZPages`로 처리하고, 기존 `/cbz/files/{fileId}/pages` 및 페이지 이미지 경로를 제공하는 것을 확인했다. 확장은 검색 형식과 primary/content 파일 판정에 CB7을 추가하고 기존 인증·소속 확인·페이지 순서 경로를 사용한다.
@@ -20,7 +39,7 @@ SDK `ae6485e`와 BookOrbit `v3.8.0 (450c18e)` 계약을 유지했다. 공식 서
 
 추가한 Rust 테스트 4개는 CB7 전용 도서의 전체 검색/라이브러리 표시, primary/content와 대소문자 지원, sidecar·일반 `7z` 제외, 기존 키 유지, 시리즈 챕터 변환, 동일한 `/cbz` 페이지 경로와 첫/마지막 페이지 순서, 파일 소속·422/404·0페이지 처리를 확인한다. Python 테스트 1개는 probe가 CB7만 있는 도서에서 검색 필터와 각 파일의 첫/마지막 이미지를 요청하는지 확인한다. `cb7-book-detail.json`은 실제 아카이브가 아닌 합성 fixture다.
 
-현재 `package.aix`는 **198,062바이트**, release Wasm은 **536,599바이트**다. 배포 사본은 `public/sources/ko.bookorbitprivate-v4.aix`, 아이콘은 `public/icons/ko.bookorbitprivate-v4.png`이며 `public/index.min.json`이 이를 참조한다. 외부 호스팅에 게시하지 않았다.
+현재 `package.aix`는 **198,062바이트**, release Wasm은 **536,599바이트**다. 배포 사본은 `public/sources/ko.bookorbitprivate-v4.aix`, 아이콘은 `public/icons/ko.bookorbitprivate-v4.png`이며 `public/index.min.json`이 이를 참조한다. 초기 로컬 검증 시점에는 외부 호스팅에 게시하지 않았으며, 이후 Pages 배포 결과는 위 절에 기록했다.
 
 패키지 SHA-256:
 
@@ -28,7 +47,7 @@ SDK `ae6485e`와 BookOrbit `v3.8.0 (450c18e)` 계약을 유지했다. 공식 서
 6e705d009fa58a58fa26d0532c998bc8ee49b086df0c317362acb30c3a6e88d4
 ```
 
-로컬 Git 저장소를 `main` 브랜치로 초기화하고 기존 버전 3을 `ffec300` 커밋에 보존했다. CB7 변경은 별도 커밋으로 기록한다. 소스·문서·아이콘·테스트·잠금 파일을 추적하고 빌드/배포 산출물과 `.env`는 제외한다. 원격 저장소는 연결하지 않았다.
+로컬 Git 저장소를 `main` 브랜치로 초기화하고 기존 버전 3을 `ffec300` 커밋에 보존했다. CB7 변경은 `22e00fe` 커밋에 기록했다. 소스·문서·아이콘·테스트·잠금 파일을 추적하고 빌드/배포 산출물과 `.env`는 제외한다. 초기화 시점에는 원격 저장소가 없었으며, 이후 GitHub 저장소를 `origin`에 연결했다.
 
 ## 이전 버전 3 검증 이력
 
