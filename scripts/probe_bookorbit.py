@@ -124,7 +124,7 @@ def run(client, args):
         "sort": [{"field": "title", "dir": "asc"}],
         "collapseSeries": False, "collapseLinked": False, "q": args.query,
         "filter": {"type": "group", "join": "AND", "rules": [
-            {"type": "rule", "field": "format", "operator": "includesAny", "value": ["cbz", "cbr"]},
+            {"type": "rule", "field": "format", "operator": "includesAny", "value": ["cbz", "cbr", "cb7"]},
             {"type": "rule", "field": "fileAvailability", "operator": "isPresent"},
         ]},
     }
@@ -152,9 +152,9 @@ def run(client, args):
         print("인증 표지: 확인")
     files = [file for file in detail["files"] if isinstance(file, dict)
              and file.get("role") in ("primary", "content")
-             and str(file.get("format", "")).lower() in ("cbz", "cbr")]
+             and str(file.get("format", "")).lower() in ("cbz", "cbr", "cb7")]
     if not files:
-        raise ProbeError("선택한 도서에 CBZ/CBR 만화 파일이 없습니다.")
+        raise ProbeError("선택한 도서에 CBZ/CBR/CB7 만화 파일이 없습니다.")
     for file in files:
         file_id = positive_id(file.get("id"))
         path = f"cbz/files/{file_id}/pages"

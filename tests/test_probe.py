@@ -1,9 +1,11 @@
 """실제 서버 없이 probe의 인증·리다이렉트·스트리밍·재시도를 검증한다."""
 import importlib.util
 import io
+import json
 import os
 from email.message import Message
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 from urllib.error import HTTPError
@@ -99,6 +101,29 @@ class ProbeTests(unittest.TestCase):
              patch.object(probe, "build_opener") as opener, patch("sys.stdout", new_callable=io.StringIO):
             self.assertEqual(probe.main(), 2)
         opener.assert_not_called()
+
+    def test_cb7_probe_checks_search_filter_and_first_last_images(self):
+        detail = json.loads((Path(__file__).parent / "fixtures/cb7-book-detail.json").read_text())
+        client = Mock()
+        client.request.side_effect = [
+            {"version": "3.8.0"},
+            {"authenticationMethod": "api_key"},
+            {"items": [{"id": 142}], "total": 1},
+            detail,
+            {"pageCount": 3}, 15, 15,
+            {"pageCount": 2}, 15, 15,
+        ]
+        args = SimpleNamespace(query="", book_id=None, all_pages=False)
+        with patch("sys.stdout", new_callable=io.StringIO):
+            probe.run(client, args)
+        calls = client.request.call_args_list
+        self.assertEqual(calls[2].args[1]["filter"]["rules"][0]["value"], ["cbz", "cbr", "cb7"])
+        self.assertEqual([call.args[0] for call in calls[4:]], [
+            "cbz/files/702/pages", "cbz/files/702/pages/0", "cbz/files/702/pages/2",
+            "cbz/files/701/pages", "cbz/files/701/pages/0", "cbz/files/701/pages/1",
+        ])
+        self.assertEqual([call.kwargs.get("image", False) for call in calls[4:]],
+                         [False, True, True, False, True, True])
 
 
 if __name__ == "__main__":

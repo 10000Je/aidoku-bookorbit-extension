@@ -1,0 +1,35 @@
+{
+  "id": 142,
+  "libraryId": 3,
+  "seriesId": 7,
+  "seriesName": "드래곤",
+  "status": "present",
+  "title": "드래곤 c03",
+  "authors": [],
+  "files": [
+    {
+      "id": 702,
+      "format": "CB7",
+      "role": "content",
+      "filename": "드래곤 c03 부록.cb7"
+    },
+    {
+      "id": 701,
+      "format": "cb7",
+      "role": "primary",
+      "filename": "드래곤 c03.cb7"
+    },
+    {
+      "id": 703,
+      "format": "cb7",
+      "role": "sidecar",
+      "filename": "ignored.cb7"
+    },
+    {
+      "id": 704,
+      "format": "7z",
+      "role": "content",
+      "filename": "unsupported.7z"
+    }
+  ]
+}

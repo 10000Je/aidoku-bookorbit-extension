@@ -2,7 +2,7 @@
 
 ## 프로젝트 구조
 
-BookOrbit의 CBZ/CBR 도서를 Aidoku에서 읽기 위한 Rust 2024·WebAssembly 소스입니다. `src/`는 설정, 인증, API 모델, 데이터 변환 및 Aidoku 인터페이스를 담당합니다. `res/source.json`은 소스 메타데이터, `res/settings.json`은 사용자 설정, `res/icon.png`는 아이콘입니다. 테스트와 fixture는 실제 서버 없이 실행할 수 있도록 구성합니다. `docs/`에는 초기 감사, API 호환성 및 검증 결과를 기록합니다.
+BookOrbit의 CBZ/CBR/CB7 도서를 Aidoku에서 읽기 위한 Rust 2024·WebAssembly 소스입니다. `src/`는 설정, 인증, API 모델, 데이터 변환 및 Aidoku 인터페이스를 담당합니다. `res/source.json`은 소스 메타데이터, `res/settings.json`은 사용자 설정, `res/icon.png`는 아이콘입니다. 테스트와 fixture는 실제 서버 없이 실행할 수 있도록 구성합니다. `docs/`에는 초기 감사, API 호환성 및 검증 결과를 기록합니다.
 
 ## 빌드 및 검증
 
@@ -29,7 +29,7 @@ URL 정규화, 인증 헤더, 검색·페이지네이션, 응답 파싱, ID 매�
 
 ## 커밋 및 PR
 
-현재 체크아웃에는 확인 가능한 Git 이력이 없습니다. 커밋 제목은 `Fix chapter ordering`처럼 간결한 명령형을 권장합니다. PR에는 변경 목적, 동작 차이, 실행한 검증, 호환 SDK·서버 버전 및 남은 제약을 적습니다. 관련 이슈를 연결하고 설정 UI 변경에는 필요한 화면 자료를 첨부합니다.
+`main` 브랜치의 Git 이력으로 변경을 관리합니다. 커밋 제목은 `Fix chapter ordering`처럼 간결한 명령형을 권장합니다. PR에는 변경 목적, 동작 차이, 실행한 검증, 호환 SDK·서버 버전 및 남은 제약을 적습니다. 관련 이슈를 연결하고 설정 UI 변경에는 필요한 화면 자료를 첨부합니다.
 
 ## 보안 및 작업 규칙
 

@@ -24,6 +24,7 @@ const COUNT: &str = include_str!("fixtures/page-count.json");
 const EMPTY: &str = include_str!("fixtures/empty-page.json");
 const TEST_KEY: &str = "bok_synthetic_test_value";
 const SERIES: &str = include_str!("fixtures/series-books-page.json");
+const CB7_DETAIL: &str = include_str!("fixtures/cb7-book-detail.json");
 
 fn scope() -> SeriesKey {
     match MangaKey::parse("series:3:7").unwrap() {
@@ -245,7 +246,10 @@ fn search_preserves_query_and_adds_required_filters_and_zero_based_page() {
     assert_eq!(page, 1);
     assert_eq!(body["q"], "만화 \"제목\"");
     assert_eq!(body["pagination"], json!({"page":1,"size":40}));
-    assert_eq!(body["filter"]["rules"][0]["value"], json!(["cbz", "cbr"]));
+    assert_eq!(
+        body["filter"]["rules"][0]["value"],
+        json!(["cbz", "cbr", "cb7"])
+    );
     assert_eq!(body["filter"]["rules"][1]["operator"], "isPresent");
     assert_eq!(body["collapseSeries"], true);
     assert_eq!(body["collapseLinked"], false);
@@ -949,4 +953,129 @@ fn series_pages_check_library_membership_and_file_ownership_before_image_request
             .series_pages(scope(), book(), file())
             .is_ok()
     );
+}
+
+#[test]
+fn cb7_books_appear_in_global_search_and_library_listings() {
+    let mut card: Value = serde_json::from_str(CB7_DETAIL).unwrap();
+    card.as_object_mut().unwrap().remove("seriesId");
+    let page = json!({"items": [card], "total": 1, "page": 0, "size": 40}).to_string();
+    for library in [None, Some(scope().library_id)] {
+        let mut mock = Mock::replies(vec![Reply::new(200, &page)]);
+        let result = Api::new(&config(), &mut mock)
+            .search_library(Some("드래곤"), 1, library)
+            .unwrap();
+        assert_eq!(result.entries.len(), 1);
+        assert_eq!(result.entries[0].key.key(), "142");
+        assert!(!result.has_next_page);
+        let body: Value = serde_json::from_str(mock.requests[0].body.as_deref().unwrap()).unwrap();
+        assert_eq!(
+            body["filter"]["rules"][0]["value"],
+            json!(["cbz", "cbr", "cb7"])
+        );
+        assert_eq!(
+            mock.requests[0].url,
+            config().endpoint(if library.is_some() {
+                "libraries/3/books"
+            } else {
+                "books/query"
+            })
+        );
+    }
+}
+
+#[test]
+fn cb7_chapters_keep_ids_and_exclude_sidecars_and_plain_7z_archives() {
+    let mut detail: BookDetail = parse_json(CB7_DETAIL.as_bytes()).unwrap();
+    let expected = chapters(&detail).unwrap();
+    assert_eq!(
+        expected
+            .iter()
+            .map(|c| (c.file_id.key(), c.number))
+            .collect::<Vec<_>>(),
+        [("702".into(), 2), ("701".into(), 1)]
+    );
+    assert_eq!(expected[1].title, "드래곤 c03.cb7");
+    detail.files.reverse();
+    assert_eq!(chapters(&detail).unwrap(), expected);
+    let mut file = serde_json::from_str::<Value>(CB7_DETAIL).unwrap()["files"][1].clone();
+    for role in ["cover", "sidecar", "unknown"] {
+        file["role"] = json!(role);
+        assert!(
+            !parse_json::<bookorbit_aidoku_source::models::BookFile>(
+                &serde_json::to_vec(&file).unwrap()
+            )
+            .unwrap()
+            .is_comic()
+        );
+    }
+}
+
+#[test]
+fn cb7_series_use_existing_stable_keys_and_server_page_order() {
+    let card: Value = serde_json::from_str(CB7_DETAIL).unwrap();
+    let page = json!({"items": [card], "total": 1, "page": 0, "size": 40, "seriesInfo": {"id":7,"name":"드래곤"}}).to_string();
+    let listing = parse_json::<BooksPage>(page.as_bytes())
+        .unwrap()
+        .into_search(&config(), 0)
+        .unwrap();
+    assert_eq!(listing.entries[0].key.key(), "series:3:7");
+    let mut mock = Mock::replies(vec![Reply::new(200, &page), Reply::new(200, CB7_DETAIL)]);
+    let series = Api::new(&config(), &mut mock).series(scope()).unwrap();
+    assert_eq!(
+        series
+            .chapters
+            .iter()
+            .map(|c| c.series_key())
+            .collect::<Vec<_>>(),
+        ["142:702", "142:701"]
+    );
+    let book = BookId::parse("142").unwrap();
+    let file = FileId::parse("701").unwrap();
+    for is_series in [false, true] {
+        let mut mock = Mock::replies(vec![Reply::new(200, CB7_DETAIL), Reply::new(200, COUNT)]);
+        let cb7_config = config();
+        let mut api = Api::new(&cb7_config, &mut mock);
+        let pages = if is_series {
+            api.series_pages(scope(), book, file)
+        } else {
+            api.pages(book, file)
+        }
+        .unwrap();
+        assert_eq!(
+            pages,
+            (0..3)
+                .map(|index| config().endpoint(&format!("cbz/files/701/pages/{index}")))
+                .collect::<Vec<_>>()
+        );
+        for url in &pages {
+            assert_eq!(config().image_url(url), Ok(url.clone()));
+        }
+        assert_eq!(
+            mock.requests[1].url,
+            config().endpoint("cbz/files/701/pages")
+        );
+    }
+    let mut mock = Mock::replies(vec![Reply::new(200, CB7_DETAIL)]);
+    assert_eq!(
+        Api::new(&config(), &mut mock).pages(book, FileId::parse("703").unwrap()),
+        Err(Error::NotFound)
+    );
+    assert_eq!(mock.requests.len(), 1);
+}
+
+#[test]
+fn cb7_archive_failures_keep_existing_error_and_page_count_guards() {
+    for (status, body, expected) in [
+        (422, "", Error::CorruptArchive),
+        (404, "", Error::NotFound),
+        (200, r#"{"pageCount":0}"#, Error::EmptyComic),
+    ] {
+        let mut mock = Mock::replies(vec![Reply::new(200, CB7_DETAIL), Reply::new(status, body)]);
+        assert_eq!(
+            Api::new(&config(), &mut mock)
+                .pages(BookId::parse("142").unwrap(), FileId::parse("701").unwrap()),
+            Err(expected)
+        );
+    }
 }

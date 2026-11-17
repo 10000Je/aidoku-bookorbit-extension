@@ -1,6 +1,38 @@
 # 검증 결과
 
-실행일: 2026-11-17. 현재 산출물은 **소스 버전 3**이며 라이브러리별 탐색·시리즈 묶음을 추가했다. 개발 환경에서 Rust 41개·Python 8개 테스트, 전체 SDK/Wasm release 빌드, 패키징과 CLI 검증을 완료했다. **버전 3의 실제 서버·아이폰 검증은 미실행**이다. 이전 버전 2의 기본 사용 검증 8개는 사용자 보고로 확인했으며 새 기능의 검증으로 확대하지 않는다.
+실행일: 2026-11-17. 현재 산출물은 **소스 버전 4**이며 CB7을 추가했다. Rust 45개·Python 9개 테스트, 전체 SDK/Wasm release 빌드, 패키징과 CLI 검증을 통과했다. **CB7 실제 파일의 서버 추출·아이폰 열람은 미실행**이다. 라이브러리·시리즈 기능의 실기기 검증도 미실행이며, 이전 버전 2의 기본 사용 검증 8개는 사용자 보고로 확인한 별도 결과다.
+
+## 버전 4 직접 실행 결과
+
+SDK `ae6485e`와 BookOrbit `v3.8.0 (450c18e)` 계약을 유지했다. 공식 서버의 `CbzService`가 CB7을 `getSevenZPages`로 처리하고, 기존 `/cbz/files/{fileId}/pages` 및 페이지 이미지 경로를 제공하는 것을 확인했다. 확장은 검색 형식과 primary/content 파일 판정에 CB7을 추가하고 기존 인증·소속 확인·페이지 순서 경로를 사용한다.
+
+| 검사 | 결과 | 범위 |
+|---|---|---|
+| `sh scripts/validate.sh` | PASS | 형식 → 호스트 검사 → Rust/Python 테스트 → Wasm → 패키징 → CLI, 종료 코드 0 |
+| `cargo fmt --check`, `cargo check --locked` | PASS | Rust 형식과 핵심 모듈 |
+| `cargo test --locked` | PASS | Rust 45개: 클라이언트 43개, 리소스 2개 |
+| `python3 -m unittest discover -s tests -p 'test_*.py'` | PASS | probe 9개, 실제 서버 연결 없음 |
+| `cargo build --locked --release --target wasm32-unknown-unknown` | PASS | 고정 SDK와 전체 어댑터 |
+| `aidoku package`, `aidoku verify package.aix` | PASS | 실제 ZIP·Wasm 및 CLI의 모든 검사 yes |
+| `aidoku build -o public -n 'BookOrbit Private Sources' package.aix` | PASS | 버전 4 목록·패키지 사본 생성 |
+| 패키지 일관성 | PASS | 소스 ID 유지·version=4·ZIP 내 Wasm = release·루트 패키지 = 배포 사본 |
+| 실제 CB7 서버 추출·아이폰 열람 | 미실행 | 합성 JSON 및 경로 검증으로 실제 압축 해제/디코딩 성공을 주장하지 않음 |
+
+추가한 Rust 테스트 4개는 CB7 전용 도서의 전체 검색/라이브러리 표시, primary/content와 대소문자 지원, sidecar·일반 `7z` 제외, 기존 키 유지, 시리즈 챕터 변환, 동일한 `/cbz` 페이지 경로와 첫/마지막 페이지 순서, 파일 소속·422/404·0페이지 처리를 확인한다. Python 테스트 1개는 probe가 CB7만 있는 도서에서 검색 필터와 각 파일의 첫/마지막 이미지를 요청하는지 확인한다. `cb7-book-detail.json`은 실제 아카이브가 아닌 합성 fixture다.
+
+현재 `package.aix`는 **198,062바이트**, release Wasm은 **536,599바이트**다. 배포 사본은 `public/sources/ko.bookorbitprivate-v4.aix`, 아이콘은 `public/icons/ko.bookorbitprivate-v4.png`이며 `public/index.min.json`이 이를 참조한다. 외부 호스팅에 게시하지 않았다.
+
+패키지 SHA-256:
+
+```text
+6e705d009fa58a58fa26d0532c998bc8ee49b086df0c317362acb30c3a6e88d4
+```
+
+로컬 Git 저장소를 `main` 브랜치로 초기화하고 기존 버전 3을 `ffec300` 커밋에 보존했다. CB7 변경은 별도 커밋으로 기록한다. 소스·문서·아이콘·테스트·잠금 파일을 추적하고 빌드/배포 산출물과 `.env`는 제외한다. 원격 저장소는 연결하지 않았다.
+
+## 이전 버전 3 검증 이력
+
+아래는 라이브러리·시리즈 기능 추가 당시의 **버전 3** 결과이며 현재 버전 4 산출물의 크기·해시와 구분한다.
 
 ## 버전 3 직접 실행 결과
 
@@ -23,7 +55,7 @@ SDK와 서버 계약 기준은 이전과 같은 `aidoku-rs ae6485e` 및 BookOrbi
 
 추가한 클라이언트 테스트 10개는 라이브러리 이름/순서·빈 응답·중복, ID 기반 목록 경로, 대표 도서 변경 및 라이브러리 간 시리즈 키 구분, 기존 숫자 키 호환, 서버 권수 순서 유지, 41권 전 페이지 조회, 중복/전체 수/소속 변경 및 누락 페이지 거부, 20,000권 한도·부분 실패, EPUB/sidecar/missing 제외, 상세의 membership 및 도서-파일 소속 검사를 확인한다. fixture는 공식 서버 코드에 근거한 합성 응답이다.
 
-현재 산출물:
+버전 3 당시 산출물:
 
 | 경로 | 크기 |
 |---|---|

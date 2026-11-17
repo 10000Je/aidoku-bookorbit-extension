@@ -222,7 +222,9 @@ impl BookFile {
     pub fn is_comic(&self) -> bool {
         matches!(self.role.as_str(), "primary" | "content")
             && self.format.as_deref().is_some_and(|format| {
-                format.eq_ignore_ascii_case("cbz") || format.eq_ignore_ascii_case("cbr")
+                format.eq_ignore_ascii_case("cbz")
+                    || format.eq_ignore_ascii_case("cbr")
+                    || format.eq_ignore_ascii_case("cb7")
             })
     }
 }

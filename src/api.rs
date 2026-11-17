@@ -72,7 +72,7 @@ pub fn query_body(query: Option<&str>, aidoku_page: i32) -> Result<(usize, Value
             "collapseSeries": true,
             "collapseLinked": false,
             "filter": {"type": "group", "join": "AND", "rules": [
-                {"type": "rule", "field": "format", "operator": "includesAny", "value": ["cbz", "cbr"]},
+                {"type": "rule", "field": "format", "operator": "includesAny", "value": ["cbz", "cbr", "cb7"]},
                 {"type": "rule", "field": "fileAvailability", "operator": "isPresent"}
             ]},
             "q": query

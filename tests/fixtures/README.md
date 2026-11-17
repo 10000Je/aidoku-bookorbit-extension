@@ -5,3 +5,5 @@
 `books-page.json`은 이후 페이지가 있는 목록, `empty-page.json`은 빈 라이브러리, `book-detail.json`은 CBZ/CBR·표지·비만화·sidecar 파일이 섞인 상세, `page-count.json`은 3페이지 파일을 나타낸다.
 
 `libraries.json`은 서버 표시 순서와 이름이 있는 라이브러리 배열이다. `series-books-page.json`은 같은 라이브러리·시리즈의 c01/c02 응답이며, 권수와 파일 ID의 순서를 다르게 하여 서버의 권수 정렬을 유지하는지 확인한다. 41권 페이지네이션·응답 변경·권한 오류는 이 합성 데이터를 변형하여 검증한다.
+
+`cb7-book-detail.json`은 CB7 primary/content 파일(소문자·대문자), 제외할 sidecar와 일반 7z 파일을 포함하는 합성 상세다. 실제 압축 파일이 아니며 CB7 압축 해제 성공의 증거는 아니다. 목록·시리즈·파일 소속·페이지 경로와 probe의 첫/마지막 이미지 요청 검증에 사용한다.

@@ -43,7 +43,7 @@
   "collapseSeries": true,
   "collapseLinked": false,
   "filter": {"type": "group", "join": "AND", "rules": [
-    {"type": "rule", "field": "format", "operator": "includesAny", "value": ["cbz", "cbr"]},
+    {"type": "rule", "field": "format", "operator": "includesAny", "value": ["cbz", "cbr", "cb7"]},
     {"type": "rule", "field": "fileAvailability", "operator": "isPresent"}
   ]},
   "q": "검색어"
@@ -52,7 +52,7 @@
 
 `BookQueryPipe`에서 page는 0부터, size는 1~200, 검색어는 JavaScript 문자열 길이 기준 200 이하다. 이 소스는 Aidoku의 1 기반 page를 검증 후 변환하고 검색어의 UTF-16 길이를 검사한다. `pagination.constants.ts`의 최대 offset 1,000,000도 적용한다. 응답의 `items`, `total`, `page`, `size`를 검사한다. 다음 페이지 판단에는 필터 후 항목 개수가 아닌 서버 total과 offset을 사용한다.
 
-목록 저자는 `string[]`, 상세 저자는 `{id,name,sortName}[]`다. 제목·설명은 null일 수 있다. `files`에는 실제 만화 외에 표지·sidecar·전자책이 있으므로 `role`이 primary/content이고 format이 CBZ/CBR인 파일만 챕터로 사용한다. 도서 ID와 파일 ID는 별도 타입이며, 기존 개별 도서의 작품·챕터 키는 숫자 문자열을 보존한다. 새 시리즈 작품은 `series:{libraryId}:{seriesId}`, 해당 챕터는 `{bookId}:{fileId}`를 사용한다.
+목록 저자는 `string[]`, 상세 저자는 `{id,name,sortName}[]`다. 제목·설명은 null일 수 있다. `files`에는 실제 만화 외에 표지·sidecar·전자책이 있으므로 `role`이 primary/content이고 format이 CBZ/CBR/CB7인 파일만 챕터로 사용한다. 도서 ID와 파일 ID는 별도 타입이며, 기존 개별 도서의 작품·챕터 키는 숫자 문자열을 보존한다. 새 시리즈 작품은 `series:{libraryId}:{seriesId}`, 해당 챕터는 `{bookId}:{fileId}`를 사용한다.
 
 ### 라이브러리와 시리즈 묶음 — 소스 버전 3
 
@@ -60,17 +60,17 @@
 
 도서 목록·검색은 `collapseSeries: true`, `collapseLinked: false`로 요청한다. 서버 `book.repository.ts`의 `COLLAPSE_GROUP_KEY_SQL`은 라이브러리와 시리즈 ID로 묶으므로 클라이언트도 같은 식별 기준을 사용한다. `total`은 묶인 목록 항목 수이며 클라이언트에서 한 페이지씩 임의로 묶지 않는다. 시리즈명이 같은 다른 라이브러리도 구분한다. 제목 문자열에서 시리즈를 추측하지 않는다.
 
-시리즈 상세에서는 `GET /series/{id}/books`를 라이브러리 ID와 함께 요청한다. 40권 단위로 모든 페이지를 수집한 뒤 primary/content CBZ/CBR만 챕터로 만든다. API의 `sort=seriesIndex&order=asc`를 사용하므로 공식 `series-index.ts`의 소수점/정수 부분 비교 규칙도 서버에 맡긴다. Aidoku 챕터 번호는 읽을 수 있는 파일 순서의 1 기반 순번이며 원래 권수 표기는 도서 제목에 유지된다. 같은 도서의 여러 파일만 파일 ID로 정렬한다.
+시리즈 상세에서는 `GET /series/{id}/books`를 라이브러리 ID와 함께 요청한다. 40권 단위로 모든 페이지를 수집한 뒤 primary/content CBZ/CBR/CB7만 챕터로 만든다. API의 `sort=seriesIndex&order=asc`를 사용하므로 공식 `series-index.ts`의 소수점/정수 부분 비교 규칙도 서버에 맡긴다. Aidoku 챕터 번호는 읽을 수 있는 파일 순서의 1 기반 순번이며 원래 권수 표기는 도서 제목에 유지된다. 같은 도서의 여러 파일만 파일 ID로 정렬한다.
 
-시리즈 API는 요청된 시리즈의 membership으로 `seriesId`를 문맥화한다. 파일 열람 전 상세의 `libraryId`와 기본 `seriesId` 또는 `seriesMemberships[]`를 검사하고, 해당 도서의 CBZ/CBR 파일인지 확인한다. 서버의 접근 통제도 그대로 적용된다. 페이지별 ID·라이브러리·시리즈·전체 건수·이름 일관성과 전체 수집 건수를 확인한다. 20,000권 초과, 중복·누락·부분 실패는 오류이며 일부 권만 정상 시리즈로 반환하지 않는다.
+시리즈 API는 요청된 시리즈의 membership으로 `seriesId`를 문맥화한다. 파일 열람 전 상세의 `libraryId`와 기본 `seriesId` 또는 `seriesMemberships[]`를 검사하고, 해당 도서의 CBZ/CBR/CB7 파일인지 확인한다. 서버의 접근 통제도 그대로 적용된다. 페이지별 ID·라이브러리·시리즈·전체 건수·이름 일관성과 전체 수집 건수를 확인한다. 20,000권 초과, 중복·누락·부분 실패는 오류이며 일부 권만 정상 시리즈로 반환하지 않는다.
 
 기존 보관함의 숫자 도서/파일 키는 계속 처리한다. 새 시리즈 키와의 자동 병합·진도 이전은 구현하지 않으며 `breakingChangeVersion`도 설정하지 않는다. 시리즈 메타데이터는 첫 만화 도서 상세를 사용한다.
 
-### 페이지와 CBR
+### 페이지와 CBR/CB7
 
-`cbz.service.ts`는 CBZ와 CBR을 모두 처리하며 CBR은 서버의 `node-unrar-js`로 페이지를 추출한다. 이미지 이름은 서버의 `compareArchiveEntryNames`로 정렬된다. 클라이언트는 파일명을 재정렬하지 않고 `0`부터 `N-1`까지 생성한다. 0페이지는 명확한 오류, 20,000 초과는 안전 한도 오류로 반환한다.
+`cbz.service.ts`는 CBZ·CBR·CB7을 모두 처리하며 CBR은 서버의 `node-unrar-js`로 페이지를 추출한다. CB7은 `getSevenZPages` → `cb7-disk-extraction.ts`의 `extractCb7ToDisk`에서 서버 임시 디렉터리로 추출하고 이미지 목록을 정렬한다. 동일한 `/cbz/files/{fileId}/pages`와 `/cbz/files/{fileId}/pages/{index}`로 읽으므로 확장에 새 압축 해제 라이브러리나 다른 이미지 경로를 추가하지 않는다. 소스 버전 4에서 CB7을 목록·검색 필터와 primary/content 판정, 읽기 전용 probe에 추가했다. 대소문자를 구분하지 않으며 일반 `7z` 형식은 허용하지 않는다. 이미지 이름은 서버의 `compareArchiveEntryNames`로 정렬된다. 클라이언트는 파일명을 재정렬하지 않고 `0`부터 `N-1`까지 생성한다. 0페이지는 명확한 오류, 20,000 초과는 안전 한도 오류로 반환한다.
 
-서버는 페이지별 MIME, ETag, `private, no-cache`를 제공한다. 클라이언트는 이미지 URL만 Aidoku에 전달하며 전체 아카이브나 모든 이미지 바이트를 Wasm에 적재하지 않는다. 사용자 iPhone에서 CBZ/CBR 열람과 페이지 순서가 정상이라는 보고를 받았다. 개별 압축 방식·이미지 형식 전체에 대한 호환성을 확인한 것은 아니다.
+서버는 페이지별 MIME, ETag, `private, no-cache`를 제공한다. 클라이언트는 이미지 URL만 Aidoku에 전달하며 전체 아카이브나 모든 이미지 바이트를 Wasm에 적재하지 않는다. 사용자 iPhone에서 CBZ/CBR 열람과 페이지 순서가 정상이라는 보고를 받았다. CB7의 실제 서버 추출·iPhone 열람은 아직 확인하지 않았다. 개별 압축 방식·이미지 형식 전체에 대한 호환성을 확인한 것은 아니다.
 
 ## Aidoku 인터페이스
 
@@ -95,4 +95,4 @@ CLI의 `settings.schema.json`은 최상위 `group` 배열과 내부 `items`를 �
 
 ## EPUB 조사 — 2026-11-17
 
-현재 목록/파일 필터는 CBZ/CBR만 허용한다. 고정 SDK `crates/lib/src/structs/mod.rs`의 `PageContent::Text`는 Markdown 텍스트를 지원하므로 텍스트 소설 전체가 앱의 원천적 비지원 대상인 것은 아니다. 그러나 EPUB 콘텐츠 전용 variant는 없으며 BookOrbit EPUB 본문/목차→텍스트 페이지 변환은 미구현이다. [공식 릴리스 노트](https://aidoku.app/release-notes/)에서도 텍스트 리더를 확인했다. [EPUB 리더 PR #1052](https://github.com/Aidoku/Aidoku/pull/1052)는 확인 시 열려 있고 로컬 파일·Komga·Kavita 연동을 대상으로 한다. 앱의 EPUB 전용 리더와 이 Wasm 확장의 지원을 동일하게 취급하지 않는다. 이번 버전은 EPUB 표시/열람을 추가하지 않는다.
+현재 목록/파일 필터는 CBZ/CBR/CB7만 허용한다. 고정 SDK `crates/lib/src/structs/mod.rs`의 `PageContent::Text`는 Markdown 텍스트를 지원하므로 텍스트 소설 전체가 앱의 원천적 비지원 대상인 것은 아니다. 그러나 EPUB 콘텐츠 전용 variant는 없으며 BookOrbit EPUB 본문/목차→텍스트 페이지 변환은 미구현이다. [공식 릴리스 노트](https://aidoku.app/release-notes/)에서도 텍스트 리더를 확인했다. [EPUB 리더 PR #1052](https://github.com/Aidoku/Aidoku/pull/1052)는 확인 시 열려 있고 로컬 파일·Komga·Kavita 연동을 대상으로 한다. 앱의 EPUB 전용 리더와 이 Wasm 확장의 지원을 동일하게 취급하지 않는다. 이번 버전은 EPUB 표시/열람을 추가하지 않는다.
