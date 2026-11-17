@@ -73,7 +73,27 @@ CLI가 파일 읽기 실패에도 종료 코드 0을 반환하는 경우가 있�
 
 AirDrop 등으로 `.aix`를 기기에 전달해 Aidoku로 여는 방법도 SDK 문서에 안내되어 있습니다. 기기에서 파일 연결 메뉴가 제공되지 않으면 소스 목록 방식을 사용하세요.
 
-개인 소스 목록도 [`public/index.min.json`](public/index.min.json)에 생성했습니다. 패키지는 `public/sources/ko.bookorbitprivate-v4.aix`, 아이콘은 `public/icons/ko.bookorbitprivate-v4.png`에 있습니다. 새 패키지로 목록을 갱신하려면 `aidoku build -o public -n 'BookOrbit Private Sources' package.aix`를 실행하세요. `public/` 전체를 접근 가능한 정적 서버에 올리고 `index.min.json`을 Aidoku에 등록할 수도 있습니다. 패키지와 소스 목록에는 개인 URL/API 키가 들어가지 않습니다. 이 작업에서는 외부 호스팅에 게시하지 않았습니다.
+개인 소스 목록도 `public/index.min.json`에 생성했습니다. 패키지는 `public/sources/ko.bookorbitprivate-v4.aix`, 아이콘은 `public/icons/ko.bookorbitprivate-v4.png`에 있습니다. 새 패키지로 목록을 갱신하려면 `sh scripts/build_source_list.sh`를 실행하세요. 패키지와 목록의 ID·버전·AIX 일치 여부를 검사합니다. `public/`은 생성물로 Git 추적에서 제외합니다. 패키지와 소스 목록에는 개인 URL/API 키가 들어가지 않습니다.
+
+## GitHub Pages 소스 목록
+
+Aidoku의 소스 목록 관리에서 다음 URL을 추가하고 새로 고침한 뒤 **BookOrbit (Private)**를 설치하세요. 설치 후 소스 설정에 개인 서버 URL과 읽기 전용 API 키를 입력합니다.
+
+```text
+https://10000je.github.io/aidoku-bookorbit-extension/index.min.json
+```
+
+GitHub Actions의 [`Deploy Aidoku source list`](.github/workflows/pages.yml)는 공개한 Release의 `package.aix`를 내려받아 고정된 공식 Aidoku CLI로 목록을 생성하고 GitHub Pages에 배포합니다. 배포되는 AIX는 Release 첨부 파일과 동일합니다. GitHub 저장소의 **Settings → Pages → Source**는 **GitHub Actions**로 설정합니다.
+
+새 버전은 `res/source.json`의 정수 `version`을 올리고 전체 검증·패키징한 뒤, 변경을 커밋·푸시하고 새 정식 Release에 `package.aix`를 첨부해 게시하세요. 이 이벤트가 목록 배포를 자동 실행합니다. 초안과 사전 Release는 자동 배포하지 않습니다. 최신 정식 Release를 수동 재배포하려면 다음 명령을 사용합니다.
+
+```sh
+gh workflow run pages.yml
+# 특정 Release를 배포하려면 태그를 지정합니다.
+gh workflow run pages.yml -f release_tag=v4
+```
+
+배포 결과는 저장소의 **Actions**에서 확인할 수 있습니다. Pages에 올리는 내용은 소스 목록·확장 패키지·아이콘이며, BookOrbit 서버 자체나 서버의 도서는 게시하지 않습니다.
 
 ## 버전 4 업데이트와 표시 방식
 
