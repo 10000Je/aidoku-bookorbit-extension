@@ -1,0 +1,17 @@
+{
+  "info": {
+    "id": "ko.bookorbitprivate",
+    "name": "BookOrbit (Private)",
+    "version": 3,
+    "minAppVersion": "0.8.3",
+    "url": "https://github.com/bookorbit/bookorbit",
+    "contentRating": 1,
+    "languages": ["ko", "en"]
+  },
+  "listings": [
+    { "id": "comics", "name": "전체 만화" }
+  ],
+  "config": {
+    "maximumParallelRequests": 2
+  }
+}

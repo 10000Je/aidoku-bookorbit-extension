@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "id": 42,
+      "libraryId": 3,
+      "seriesId": 7,
+      "seriesName": "드래곤",
+      "seriesIndex": "1",
+      "title": "드래곤 c01",
+      "status": "present",
+      "hasCover": true,
+      "files": [{ "id": 501, "role": "primary", "format": "cbz" }]
+    },
+    {
+      "id": 43,
+      "libraryId": 3,
+      "seriesId": 7,
+      "seriesName": "드래곤",
+      "seriesIndex": "2",
+      "title": "드래곤 c02",
+      "status": "present",
+      "files": [{ "id": 499, "role": "primary", "format": "cbr" }]
+    }
+  ],
+  "total": 2,
+  "page": 0,
+  "size": 40,
+  "seriesInfo": { "id": 7, "name": "드래곤", "bookCount": 2 }
+}

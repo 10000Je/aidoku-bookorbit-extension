@@ -1,0 +1,35 @@
+[
+  {
+    "type": "group",
+    "title": "BookOrbit 서버 연결",
+    "footer": "서버 기본 URL(프록시 하위 경로 포함 가능)과 읽기 전용 API 키를 입력하세요.",
+    "items": [
+      {
+        "type": "text",
+        "key": "server_url",
+        "title": "BookOrbit 서버 주소",
+        "placeholder": "https://books.example.com",
+        "autocapitalizationType": 0,
+        "keyboardType": 3,
+        "autocorrectionDisabled": true,
+        "refreshes": [
+          "content",
+          "listings"
+        ]
+      },
+      {
+        "type": "text",
+        "key": "api_key",
+        "title": "읽기 전용 API 키",
+        "placeholder": "bok_...",
+        "autocapitalizationType": 0,
+        "secure": true,
+        "autocorrectionDisabled": true,
+        "refreshes": [
+          "content",
+          "listings"
+        ]
+      }
+    ]
+  }
+]

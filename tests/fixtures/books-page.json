@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": 42,
+      "status": "present",
+      "title": "테스트 만화",
+      "authors": [
+        "가상 작가"
+      ],
+      "files": [
+        {
+          "id": 501,
+          "format": "cbz",
+          "role": "primary"
+        }
+      ],
+      "hasCover": true,
+      "genres": [
+        "만화"
+      ],
+      "tags": [
+        "만화",
+        "완결"
+      ]
+    },
+    {
+      "id": 43,
+      "status": "present",
+      "title": null,
+      "authors": null,
+      "files": [
+        {
+          "id": 503,
+          "format": "cbr",
+          "role": "content"
+        }
+      ],
+      "hasCover": false
+    }
+  ],
+  "total": 41,
+  "page": 0,
+  "size": 40
+}

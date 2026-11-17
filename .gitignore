@@ -1,0 +1,7 @@
+/target/
+/package.aix
+/public/
+.env
+.env.*
+!.env.example
+__pycache__/

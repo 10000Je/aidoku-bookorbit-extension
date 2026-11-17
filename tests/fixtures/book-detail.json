@@ -1,0 +1,55 @@
+{
+  "id": 42,
+  "status": "present",
+  "title": "테스트 만화",
+  "description": "합성 데이터입니다.",
+  "authors": [
+    {
+      "id": 7,
+      "name": "가상 작가",
+      "sortName": null
+    }
+  ],
+  "genres": [
+    "만화"
+  ],
+  "tags": [
+    "완결"
+  ],
+  "publisher": "가상 출판사",
+  "language": "ko",
+  "coverSource": "extracted",
+  "files": [
+    {
+      "id": 502,
+      "format": "cbr",
+      "role": "content",
+      "filename": "두 번째.cbr",
+      "absolutePath": "/synthetic/unused.cbr"
+    },
+    {
+      "id": 501,
+      "format": "cbz",
+      "role": "primary",
+      "filename": "첫 번째.cbz"
+    },
+    {
+      "id": 504,
+      "format": "jpg",
+      "role": "cover",
+      "filename": "cover.jpg"
+    },
+    {
+      "id": 505,
+      "format": "epub",
+      "role": "content",
+      "filename": "text.epub"
+    },
+    {
+      "id": 506,
+      "format": "cbz",
+      "role": "sidecar",
+      "filename": "ignored.cbz"
+    }
+  ]
+}

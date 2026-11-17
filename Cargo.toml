@@ -1,0 +1,24 @@
+[package]
+name = "bookorbit-aidoku-source"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
+serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
+url = { version = "2.5.8", default-features = false }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+aidoku = { git = "https://github.com/Aidoku/aidoku-rs", rev = "ae6485e3c14ecd1fd5497d170eae884c68d04a87", features = ["json"] }
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+opt-level = "s"
+strip = true
+lto = true
