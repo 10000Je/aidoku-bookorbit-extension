@@ -1,6 +1,6 @@
 # 검증 결과
 
-실행일: 2026-11-18 KST. 현재 산출물은 **소스 버전 5**이며 표시 이름 변경과 지원 파일이 없는 라이브러리 버튼 숨김을 적용했다. Rust 49개·Python 9개 테스트, 전체 SDK/Wasm release 빌드, 패키징과 CLI 검증을 통과했다. 실제 서버 확인은 미실행이며, 버전 5 아이폰 실기기 확인은 사용자 요청으로 생략한다. 외부 배포 결과는 확인 후 기록한다. 이전 버전의 실기기 보고·배포 결과는 아래에 별도로 기록한다.
+실행일: 2026-11-18 KST. 현재 산출물은 **소스 버전 5**이며 표시 이름 변경과 지원 파일이 없는 라이브러리 버튼 숨김을 적용했다. Rust 49개·Python 9개 테스트, 전체 SDK/Wasm release 빌드, 패키징과 CLI 검증을 통과했다. v5 Release 게시와 Pages 배포·공개 파일 검증도 완료했다. 실제 서버 확인은 미실행이며, 버전 5 아이폰 실기기 확인은 사용자 요청으로 생략했다. 이전 버전의 실기기 보고·배포 결과는 아래에 별도로 기록한다.
 
 ## 버전 5 직접 실행 결과
 
@@ -16,7 +16,7 @@
 | 패키지 메타데이터·Wasm 일치 | PASS | 이름 `BookOrbit`, version=5, 기존 ID 유지, 내부 Wasm과 release 파일 바이트 일치 |
 | 실제 서버 | 미실행 | 자격 증명을 사용하는 실제 서버 점검은 수행하지 않음 |
 | 아이폰 실기기 | 생략 | 사용자 요청으로 버전 5 실기기 확인 생략 |
-| 외부 배포 | 진행 예정 | 버전 5 Release 게시·Pages 갱신 후 별도 기록 |
+| 외부 배포 | PASS | v5 Release 게시·Pages 갱신 및 공개 목록·AIX·아이콘 검증 완료 |
 
 추가한 클라이언트 테스트 4개는 CBZ·CBR·CB7 및 대소문자 지원, 빈 라이브러리·EPUB/PDF·일반 7z·sidecar/cover·missing 도서 제외, 서버 이름·표시 순서·라이브러리별 요청·인증 유지, 후속 페이지 탐색과 첫 만화 발견 시 중단, 마지막 페이지까지 지원 파일이 없는 경우 숨김, 인증·권한·서버 오류와 잘못된 응답을 빈 목록으로 간주하지 않는 동작을 확인한다. 합성 fixture 결과이며 실제 압축 해제·이미지 디코딩·앱 화면 확인은 아니다.
 
@@ -24,6 +24,20 @@
 
 - 패키지 SHA-256: `9c1a65a958390aa6daa9d86a16c83bb6a92b421acba6b14da4086a2cb9d43cae`
 - Wasm SHA-256: `bd499872409c9cd2a399af6a6f3e8a5d2a8454892dd6142f2eaf603879f34b09`
+
+## 버전 5 배포 결과
+
+실행일: **2026-11-18 KST**. `main`의 `eb5d5c4` 커밋을 푸시하고 [v5 정식 Release](https://github.com/10000Je/aidoku-bookorbit-extension/releases/tag/v5)에 검증된 `package.aix`를 첨부했다. 아이폰 실기기 확인은 사용자 요청으로 생략했으며 통과로 보고하지 않는다.
+
+| 검사 | 결과 | 범위 |
+|---|---|---|
+| 릴리스 게시·첨부 파일 | PASS | 정식 v5, AIX 198,132바이트, 다시 내려받은 파일과 로컬 AIX 바이트 일치 |
+| Release 이벤트 자동 배포 | 실패 | [실행 44314607711](https://github.com/10000Je/aidoku-bookorbit-extension/actions/runs/44314607711): build 성공, 환경 보호 규칙이 v5 태그 배포를 거부 |
+| 허용된 main 브랜치 수동 배포 | PASS | `gh workflow run pages.yml --ref main -f release_tag=v5`, [실행 44315105652](https://github.com/10000Je/aidoku-bookorbit-extension/actions/runs/44315105652)의 build·deploy 성공 |
+| 공개 소스 목록 | PASS | [index.min.json](https://10000je.github.io/aidoku-bookorbit-extension/index.min.json) HTTP 200, 목록 이름 `BookOrbit Sources`, 소스 이름 `BookOrbit`, version=5, 기존 ID 유지 |
+| 공개 AIX·아이콘 | PASS | 각 URL HTTP 200, Pages AIX = v5 Release AIX = 검증된 로컬 AIX, 공개 아이콘 = 패키지 내부 아이콘 3,399바이트 |
+
+Pages AIX의 SHA-256은 위 버전 5 패키지와 일치한다. 환경 보호 규칙은 변경하지 않았으며, 이후에도 현재 설정에서는 정식 Release 게시 후 `main`에서 해당 Release를 지정해 수동 배포해야 한다. 이번 배포에서는 소스 코드 변경 없이 기존 검증 패키지를 다시 확인·게시했으며 Rust/Python 테스트와 Wasm 빌드는 재실행하지 않았다.
 
 ## GitHub Pages 배포 검증
 

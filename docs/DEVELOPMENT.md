@@ -71,12 +71,12 @@ https://10000je.github.io/aidoku-bookorbit-extension/index.min.json
 
 GitHub Actions의 [`Deploy Aidoku source list`](../.github/workflows/pages.yml)는 공개한 Release의 `package.aix`를 내려받아 고정된 공식 Aidoku CLI로 목록을 생성하고 GitHub Pages에 배포합니다. 배포되는 AIX는 Release 첨부 파일과 동일합니다. GitHub 저장소의 **Settings → Pages → Source**는 **GitHub Actions**로 설정합니다.
 
-새 버전은 `res/source.json`의 정수 `version`을 올리고 전체 검증·패키징한 뒤, 변경을 커밋·푸시하고 새 정식 Release에 `package.aix`를 첨부해 게시하세요. 이 이벤트가 목록 배포를 자동 실행합니다. 초안과 사전 Release는 자동 배포하지 않습니다. 최신 정식 Release를 수동 재배포하려면 다음 명령을 사용합니다.
+새 버전은 `res/source.json`의 정수 `version`을 올리고 전체 검증·패키징한 뒤, 변경을 커밋·푸시하고 새 정식 Release에 `package.aix`를 첨부해 게시하세요. 이 이벤트가 목록 배포를 자동 실행합니다. 초안과 사전 Release는 자동 배포하지 않습니다. 현재 Pages 환경에서는 Release 태그에서의 배포가 보호 규칙으로 거부되므로, 게시 후 허용된 `main` 브랜치에서 아래 수동 배포를 실행하세요. 환경 보호 규칙은 변경하지 않습니다.
 
 ```sh
-gh workflow run pages.yml
+gh workflow run pages.yml --ref main
 # 특정 Release를 배포하려면 태그를 지정합니다.
-gh workflow run pages.yml -f release_tag=v4
+gh workflow run pages.yml --ref main -f release_tag=v5
 ```
 
 배포 결과는 저장소의 **Actions**에서 확인할 수 있습니다. Pages에 올리는 내용은 소스 목록·확장 패키지·아이콘이며, BookOrbit 서버 자체나 서버의 도서는 게시하지 않습니다.
