@@ -27,7 +27,7 @@ print('package.aix 구조: 확인')
 PY
 
 aidoku verify package.aix
-aidoku build -o public -n 'BookOrbit Private Sources' package.aix
+aidoku build -o public -n 'BookOrbit Sources' package.aix
 
 python3 - <<'PY'
 import json

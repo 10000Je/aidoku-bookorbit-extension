@@ -688,6 +688,158 @@ fn duplicate_or_blank_libraries_fail_and_empty_libraries_are_supported() {
 }
 
 #[test]
+fn library_buttons_keep_supported_formats_names_order_and_scoped_auth() {
+    for format in ["cbz", "cbr", "CB7"] {
+        let libraries = r#"[{"id":9,"name":"소설","displayOrder":1},{"id":3,"name":"만화","displayOrder":0},{"id":12,"name":"혼합","displayOrder":2}]"#;
+        let mut comic = library_button_page(3);
+        comic["items"][0]["files"][0]["format"] = json!(format);
+        let mixed = library_button_page(12);
+        let mut mock = Mock::replies(vec![
+            Reply::new(200, libraries),
+            Reply::new(200, &comic.to_string()),
+            Reply::new(200, EMPTY),
+            Reply::new(200, &mixed.to_string()),
+        ]);
+        let result = Api::new(&config(), &mut mock)
+            .libraries_with_comics()
+            .unwrap();
+        assert_eq!(
+            result
+                .iter()
+                .map(|l| (l.id.value(), l.name.as_str()))
+                .collect::<Vec<_>>(),
+            [(3, "만화"), (12, "혼합")]
+        );
+        for (request, id) in mock.requests[1..].iter().zip([3, 9, 12]) {
+            assert_eq!(request.method, Method::Post);
+            assert_eq!(
+                request.url,
+                config().endpoint(&format!("libraries/{id}/books"))
+            );
+            assert_eq!(request.header.1, format!("Bearer {TEST_KEY}"));
+            let body: Value = serde_json::from_str(request.body.as_deref().unwrap()).unwrap();
+            assert_eq!(body, query_body(None, 1).unwrap().1);
+        }
+    }
+}
+
+fn library_button_page(library_id: u64) -> Value {
+    let mut page: Value = serde_json::from_str(PAGE).unwrap();
+    page["items"].as_array_mut().unwrap().truncate(1);
+    page["items"][0]["libraryId"] = json!(library_id);
+    page["total"] = json!(1);
+    page
+}
+
+#[test]
+fn library_buttons_hide_empty_unsupported_missing_and_sidecar_only_libraries() {
+    let libraries = r#"[{"id":3,"name":"서재"}]"#;
+    for (format, role, status) in [
+        ("epub", "primary", "present"),
+        ("pdf", "primary", "present"),
+        ("7z", "primary", "present"),
+        ("cbz", "sidecar", "present"),
+        ("cbr", "cover", "present"),
+        ("cb7", "primary", "missing"),
+    ] {
+        let mut page = library_button_page(3);
+        page["items"][0]["files"][0]["format"] = json!(format);
+        page["items"][0]["files"][0]["role"] = json!(role);
+        page["items"][0]["status"] = json!(status);
+        let mut mock = Mock::replies(vec![
+            Reply::new(200, libraries),
+            Reply::new(200, &page.to_string()),
+        ]);
+        assert!(
+            Api::new(&config(), &mut mock)
+                .libraries_with_comics()
+                .unwrap()
+                .is_empty()
+        );
+        assert_eq!(mock.requests.len(), 2);
+    }
+    for replies in [
+        vec![Reply::new(200, "[]")],
+        vec![Reply::new(200, libraries), Reply::new(200, EMPTY)],
+    ] {
+        let mut mock = Mock::replies(replies);
+        assert!(
+            Api::new(&config(), &mut mock)
+                .libraries_with_comics()
+                .unwrap()
+                .is_empty()
+        );
+    }
+}
+
+#[test]
+fn library_buttons_check_later_pages_and_stop_at_first_readable_book() {
+    let mut first = library_button_page(3);
+    let mut card = first["items"][0].clone();
+    card["files"][0]["role"] = json!("sidecar");
+    first["items"] = Value::Array(
+        (1..=40)
+            .map(|id| {
+                let mut card = card.clone();
+                card["id"] = json!(id);
+                card
+            })
+            .collect(),
+    );
+    first["total"] = json!(81);
+    let mut second = library_button_page(3);
+    second["page"] = json!(1);
+    second["total"] = json!(81);
+    let mut mock = Mock::replies(vec![
+        Reply::new(200, r#"[{"id":3,"name":"만화"}]"#),
+        Reply::new(200, &first.to_string()),
+        Reply::new(200, &second.to_string()),
+    ]);
+    let libraries = Api::new(&config(), &mut mock)
+        .libraries_with_comics()
+        .unwrap();
+    assert_eq!(libraries.len(), 1);
+    assert_eq!(libraries[0].id.value(), 3);
+    assert_eq!(mock.requests.len(), 3);
+    let body: Value = serde_json::from_str(mock.requests[2].body.as_deref().unwrap()).unwrap();
+    assert_eq!(body["pagination"]["page"], 1);
+
+    // 마지막 페이지까지 지원 파일이 없으면 버튼을 만들지 않는다.
+    second["total"] = json!(41);
+    second["items"][0]["files"][0]["format"] = json!("epub");
+    first["total"] = json!(41);
+    let mut mock = Mock::replies(vec![
+        Reply::new(200, r#"[{"id":3,"name":"소설"}]"#),
+        Reply::new(200, &first.to_string()),
+        Reply::new(200, &second.to_string()),
+    ]);
+    assert!(
+        Api::new(&config(), &mut mock)
+            .libraries_with_comics()
+            .unwrap()
+            .is_empty()
+    );
+}
+
+#[test]
+fn library_button_lookup_errors_are_not_treated_as_empty_libraries() {
+    for reply in [
+        Reply::new(401, ""),
+        Reply::new(403, ""),
+        Reply::new(500, ""),
+        Reply::new(200, "{}"),
+        Reply::new(200, &library_button_page(9).to_string()),
+    ] {
+        let mut mock = Mock::replies(vec![Reply::new(200, r#"[{"id":3,"name":"만화"}]"#), reply]);
+        assert!(
+            Api::new(&config(), &mut mock)
+                .libraries_with_comics()
+                .is_err()
+        );
+    }
+}
+
+#[test]
 fn library_listing_uses_id_scoped_endpoint_and_collapsed_pagination() {
     let mut value: Value = serde_json::from_str(SERIES).unwrap();
     value["items"].as_array_mut().unwrap().truncate(1);

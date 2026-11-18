@@ -1,8 +1,8 @@
 {
   "info": {
     "id": "ko.bookorbitprivate",
-    "name": "BookOrbit (Private)",
-    "version": 4,
+    "name": "BookOrbit",
+    "version": 5,
     "minAppVersion": "0.8.3",
     "url": "https://github.com/bookorbit/bookorbit",
     "contentRating": 1,

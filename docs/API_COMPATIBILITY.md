@@ -58,6 +58,8 @@
 
 `GET /libraries` 응답을 `displayOrder`, ID 순으로 정렬하고 이름을 그대로 사용한다. SDK `DynamicListings`가 `library:{id}` 목록을 반환하고 `ListingProvider`가 `POST /libraries/{id}/books`로 조회한다. 기존 `comics` 목록은 `전체 만화`로 유지한다. 이 탐색 목록은 Aidoku 보관함 카테고리를 생성하지 않는다. 전체 제목 검색은 기존 `POST /books/query`를 사용한다.
 
+소스 버전 5부터 `DynamicListings`는 각 라이브러리를 기존 검색 계약으로 조회하여 표시 가능한 만화가 있는 곳만 반환한다. 검색과 동일하게 `present` 도서의 primary/content CBZ·CBR·CB7 파일을 판정한다. 첫 페이지에 표시할 항목이 없고 다음 페이지가 있으면 계속 조회하며, 첫 항목을 찾으면 해당 라이브러리 확인을 마친다. 모두 빈 결과이면 버튼을 숨긴다. 서버 이름·표시 순서·ID를 유지하고, 조회 실패는 빈 결과로 바꾸지 않고 기존 오류로 전달한다. 새 API나 쓰기 요청은 추가하지 않는다. 표시 이름을 `BookOrbit`으로 바꾸되 기존 설치·설정·보관함 연결을 위해 소스 ID `ko.bookorbitprivate`를 유지한다.
+
 도서 목록·검색은 `collapseSeries: true`, `collapseLinked: false`로 요청한다. 서버 `book.repository.ts`의 `COLLAPSE_GROUP_KEY_SQL`은 라이브러리와 시리즈 ID로 묶으므로 클라이언트도 같은 식별 기준을 사용한다. `total`은 묶인 목록 항목 수이며 클라이언트에서 한 페이지씩 임의로 묶지 않는다. 시리즈명이 같은 다른 라이브러리도 구분한다. 제목 문자열에서 시리즈를 추측하지 않는다.
 
 시리즈 상세에서는 `GET /series/{id}/books`를 라이브러리 ID와 함께 요청한다. 40권 단위로 모든 페이지를 수집한 뒤 primary/content CBZ/CBR/CB7만 챕터로 만든다. API의 `sort=seriesIndex&order=asc`를 사용하므로 공식 `series-index.ts`의 소수점/정수 부분 비교 규칙도 서버에 맡긴다. Aidoku 챕터 번호는 읽을 수 있는 파일 순서의 1 기반 순번이며 원래 권수 표기는 도서 제목에 유지된다. 같은 도서의 여러 파일만 파일 ID로 정렬한다.

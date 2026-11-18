@@ -216,7 +216,7 @@ impl DynamicListings for BookOrbit {
     fn get_dynamic_listings(&self) -> aidoku::Result<Vec<Listing>> {
         let config = config()?;
         Ok(Api::new(&config, &mut AidokuTransport)
-            .libraries()?
+            .libraries_with_comics()?
             .into_iter()
             .map(|library| Listing {
                 id: format!("library:{}", library.id.value()),

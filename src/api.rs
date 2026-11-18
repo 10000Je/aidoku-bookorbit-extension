@@ -164,6 +164,24 @@ impl<'a, T: Transport> Api<'a, T> {
         Ok(libraries)
     }
 
+    /// 탐색 목록에 표시할 수 있는 만화가 있는 라이브러리만 반환한다.
+    pub fn libraries_with_comics(&mut self) -> Result<Vec<Library>> {
+        let mut libraries = Vec::new();
+        for library in self.libraries()? {
+            for page in 1.. {
+                let result = self.search_library(None, page, Some(library.id))?;
+                if !result.entries.is_empty() {
+                    libraries.push(library);
+                    break;
+                }
+                if !result.has_next_page {
+                    break;
+                }
+            }
+        }
+        Ok(libraries)
+    }
+
     pub fn search_library(
         &mut self,
         query: Option<&str>,

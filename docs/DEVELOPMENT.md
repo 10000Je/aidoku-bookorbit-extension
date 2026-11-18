@@ -54,16 +54,16 @@ CLI가 파일 읽기 실패에도 종료 코드 0을 반환하는 경우가 있�
 2. `aidoku serve package.aix`를 실행합니다. 서버를 실행한 터미널을 유지합니다.
 3. CLI가 표시하는 `http://컴퓨터의-LAN-IP:8080/index.min.json`을 복사합니다. 아이폰에서 컴퓨터의 `localhost` 주소를 사용하지 마세요.
 4. Aidoku의 소스 목록 관리에서 해당 URL을 추가하고 목록을 새로 고칩니다. 메뉴 이름은 앱 버전에 따라 다를 수 있습니다.
-5. 표시된 **BookOrbit (Private)** 소스를 설치합니다.
+5. 표시된 **BookOrbit** 소스를 설치합니다.
 6. 소스 설정에서 서버 기본 URL과 읽기 전용 API 키를 입력하고 목록을 다시 엽니다.
 
 AirDrop 등으로 `.aix`를 기기에 전달해 Aidoku로 여는 방법도 SDK 문서에 안내되어 있습니다. 기기에서 파일 연결 메뉴가 제공되지 않으면 소스 목록 방식을 사용하세요.
 
-개인 소스 목록도 `public/index.min.json`에 생성했습니다. 패키지는 `public/sources/ko.bookorbitprivate-v4.aix`, 아이콘은 `public/icons/ko.bookorbitprivate-v4.png`에 있습니다. 새 패키지로 목록을 갱신하려면 `sh scripts/build_source_list.sh`를 실행하세요. 패키지와 목록의 ID·버전·AIX 일치 여부를 검사합니다. `public/`은 생성물로 Git 추적에서 제외합니다. 패키지와 소스 목록에는 개인 URL/API 키가 들어가지 않습니다.
+개인 소스 목록도 `public/index.min.json`에 생성합니다. 버전 5 패키지는 `public/sources/ko.bookorbitprivate-v5.aix`, 아이콘은 `public/icons/ko.bookorbitprivate-v5.png`에 있습니다. 새 패키지로 목록을 갱신하려면 `sh scripts/build_source_list.sh`를 실행하세요. 패키지와 목록의 ID·버전·AIX 일치 여부를 검사합니다. `public/`은 생성물로 Git 추적에서 제외합니다. 패키지와 소스 목록에는 개인 URL/API 키가 들어가지 않습니다.
 
 ## GitHub Pages 소스 목록
 
-Aidoku의 소스 목록 관리에서 다음 URL을 추가하고 새로 고침한 뒤 **BookOrbit (Private)**를 설치하세요. 설치 후 소스 설정에 개인 서버 URL과 읽기 전용 API 키를 입력합니다.
+Aidoku의 소스 목록 관리에서 다음 URL을 추가하고 새로 고침한 뒤 **BookOrbit**을 설치하세요. 설치 후 소스 설정에 개인 서버 URL과 읽기 전용 API 키를 입력합니다.
 
 ```text
 https://10000je.github.io/aidoku-bookorbit-extension/index.min.json

@@ -1,6 +1,29 @@
 # 검증 결과
 
-실행일: 2026-11-17. 현재 산출물은 **소스 버전 4**이며 CB7을 추가했다. Rust 45개·Python 9개 테스트, 전체 SDK/Wasm release 빌드, 패키징과 CLI 검증을 통과했다. **CB7 실제 파일의 서버 추출·아이폰 열람은 미실행**이다. 라이브러리·시리즈 기능의 실기기 검증도 미실행이며, 이전 버전 2의 기본 사용 검증 8개는 사용자 보고로 확인한 별도 결과다.
+실행일: 2026-11-18 KST. 현재 산출물은 **소스 버전 5**이며 표시 이름 변경과 지원 파일이 없는 라이브러리 버튼 숨김을 적용했다. Rust 49개·Python 9개 테스트, 전체 SDK/Wasm release 빌드, 패키징과 CLI 검증을 통과했다. 실제 서버 확인은 미실행이며, 버전 5 아이폰 실기기 확인은 사용자 요청으로 생략한다. 외부 배포 결과는 확인 후 기록한다. 이전 버전의 실기기 보고·배포 결과는 아래에 별도로 기록한다.
+
+## 버전 5 직접 실행 결과
+
+표시 이름은 `BookOrbit`, 소스 목록 이름은 `BookOrbit Sources`다. 기존 설치와 설정을 유지하도록 소스 ID `ko.bookorbitprivate`는 바꾸지 않았다. 기존 고정 SDK `ae6485e`와 BookOrbit `v3.8.0 (450c18e)`의 라이브러리 검색 계약을 재사용하며 새 API는 추가하지 않았다.
+
+| 검사 | 결과 | 범위 |
+|---|---|---|
+| `sh scripts/validate.sh` | PASS | 형식·호스트 검사·Rust/Python 테스트·Wasm·패키징·CLI 검증, 종료 코드 0 |
+| `cargo test --locked` | PASS | Rust 49개: 클라이언트 47개, 리소스 2개 |
+| Python unittest | PASS | probe 9개, 실제 서버 연결 없음 |
+| Wasm release·`aidoku package`·`aidoku verify package.aix` | PASS | 전체 SDK 어댑터 빌드, CLI의 모든 검사 yes |
+| `sh scripts/build_source_list.sh` | PASS | 로컬 버전 5 소스 목록·패키지 사본·아이콘 생성, ID·버전·AIX 바이트 일치 |
+| 패키지 메타데이터·Wasm 일치 | PASS | 이름 `BookOrbit`, version=5, 기존 ID 유지, 내부 Wasm과 release 파일 바이트 일치 |
+| 실제 서버 | 미실행 | 자격 증명을 사용하는 실제 서버 점검은 수행하지 않음 |
+| 아이폰 실기기 | 생략 | 사용자 요청으로 버전 5 실기기 확인 생략 |
+| 외부 배포 | 진행 예정 | 버전 5 Release 게시·Pages 갱신 후 별도 기록 |
+
+추가한 클라이언트 테스트 4개는 CBZ·CBR·CB7 및 대소문자 지원, 빈 라이브러리·EPUB/PDF·일반 7z·sidecar/cover·missing 도서 제외, 서버 이름·표시 순서·라이브러리별 요청·인증 유지, 후속 페이지 탐색과 첫 만화 발견 시 중단, 마지막 페이지까지 지원 파일이 없는 경우 숨김, 인증·권한·서버 오류와 잘못된 응답을 빈 목록으로 간주하지 않는 동작을 확인한다. 합성 fixture 결과이며 실제 압축 해제·이미지 디코딩·앱 화면 확인은 아니다.
+
+현재 `package.aix`는 **198,132바이트**, release Wasm은 **537,504바이트**다. 로컬 소스 목록은 `public/index.min.json`, 배포 사본은 `public/sources/ko.bookorbitprivate-v5.aix`, 아이콘은 `public/icons/ko.bookorbitprivate-v5.png`다.
+
+- 패키지 SHA-256: `9c1a65a958390aa6daa9d86a16c83bb6a92b421acba6b14da4086a2cb9d43cae`
+- Wasm SHA-256: `bd499872409c9cd2a399af6a6f3e8a5d2a8454892dd6142f2eaf603879f34b09`
 
 ## GitHub Pages 배포 검증
 
